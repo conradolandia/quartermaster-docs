@@ -1,3 +1,49 @@
+# Deployment Strategy
+
+This document describes the deployment strategy for the Quartermaster project using FastAPI, Docker Compose, Uvicorn, and Traefik, based on the FastAPI Full-Stack Template.
+
+## Services Overview
+
+1. **quartermaster-backend**: FastAPI backend code
+2. **quartermaster-frontend**: Astro/Svelte frontend (future phase)
+3. **postgres**: PostgreSQL database
+4. **traefik**: Reverse proxy and HTTPS
+
+## Deployment Steps
+
+- Use Docker Compose for local development and production deployments.
+- To start all services:
+  ```bash
+  docker compose up --build
+  ```
+- To stop services:
+  ```bash
+  docker compose down
+  ```
+- Environment variables are managed via `.env` files for each service.
+
+## Process Management
+
+- Uvicorn is used as the ASGI server for FastAPI.
+- Traefik handles HTTPS and reverse proxying.
+- No PM2 or Node.js process manager is required.
+
+## Database Migrations
+
+- Use Alembic for database migrations:
+  ```bash
+  alembic upgrade head
+  ```
+
+## Monitoring and Backups
+
+- Use Sentry for error monitoring.
+- Use `pg_dump` for database backups.
+
+## Additional Notes
+
+- For more details, see the [FastAPI Full-Stack Template deployment docs](https://github.com/fastapi/full-stack-fastapi-template).
+
 # Quartermaster Deployment Plan
 
 ## Overview
@@ -27,45 +73,6 @@ The project will be divided into three main repositories:
    - Stage plans
    - Meeting notes
    - Design assets
-
-### Repository Organization
-
-#### Backend Repository
-
-```
-quartermaster-backend/
-├── app/                  # Application code
-│   ├── Controllers/      # Request handlers
-│   │   ├── Models/           # Database models
-│   │   ├── Middleware/       # Request middleware
-│   │   ├── Services/         # Business logic
-│   │   └── Validators/       # Request validation
-│   ├── config/               # Configuration files
-│   ├── database/
-│   │   ├── migrations/       # Database migrations
-│   │   └── seeders/          # Seed data for testing
-│   ├── resources/
-│   │   └── views/            # Email templates
-│   ├── tests/                # Test files
-│   └── .env.example          # Environment variable template
-```
-
-#### Frontend Repository
-
-```
-quartermaster-frontend/
-├── src/
-│   ├── components/       # Reusable UI components
-│   │   ├── admin/        # Admin-specific components
-│   │   ├── booking/      # Booking flow components
-│   │   └── shared/       # Shared components
-│   ├── layouts/          # Page layouts
-│   ├── pages/            # Page components
-│   ├── lib/              # Shared utilities
-│   └── styles/           # Global styles
-├── public/               # Static assets
-└── .env.example          # Environment variable template
-```
 
 ## Git Workflow
 

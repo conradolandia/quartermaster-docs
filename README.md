@@ -15,7 +15,8 @@ The Quartermaster system is built using the following technologies:
 The initial implementation is based on the [FastAPI Full-Stack Template](https://github.com/fastapi/full-stack-fastapi-template), providing a solid foundation with built-in authentication, database integration, and frontend components.
 
 ### Stage 2
-- In Stage 2, we plan to migrate the frontend from React to Svelte for improved performance and developer experience.
+
+- In Stage 2, we plan to create a new frontend in Svelte for improved performance and developer experience.
 
 ## Documentation Structure
 

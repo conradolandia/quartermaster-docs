@@ -103,31 +103,31 @@ When a user buys a trip, the details of the transaction need to be sent to certa
 
 After evaluating several technology options and considering our project requirements, timeline constraints, and team composition, we have selected the following tech stack:
 
-### Backend: AdonisJS (TypeScript)
+### Backend: FastAPI (Python)
 
-[AdonisJS](https://adonisjs.com/) is a fully-featured web framework for Node.js with a focus on developer ergonomics and speed.
+[FastAPI](https://fastapi.tiangolo.com/) is a modern, high-performance web framework for building APIs with Python 3.7+ based on standard Python type hints.
 
-We've chosen AdonisJS for the following reasons:
+We've chosen FastAPI for the following reasons:
 
-- **Speed of Development**: Built-in features accelerate MVP development
-- **Full-Featured Framework**: Includes authentication, validation, ORM, and email services
-- **Convention over Configuration**: Reduces decision fatigue and standardizes code structure
-- **Strong TypeScript Support**: Provides type safety while maintaining developer productivity
+- **Speed of Development**: Automatic docs, type validation, and async support accelerate MVP development
+- **Full-Featured Framework**: Includes authentication, validation, ORM (via SQLModel), and email services
+- **Type Safety**: Leverages Python type hints and Pydantic for data validation and serialization
 - **Excellent Documentation**: Comprehensive guides and examples for rapid learning
-- **Built-in CLI**: Powerful tooling for scaffolding components and database operations
+- **Built-in CLI**: Powerful tooling for scaffolding components and database operations (via FastAPI Full-Stack Template)
+- **Async Support**: High performance for concurrent requests
 
-AdonisJS provides several key features that align with our project needs:
+Key features provided by FastAPI and the Full-Stack Template:
 
-- **[Lucid ORM](https://docs.adonisjs.com/guides/database/introduction)**: Built-in ORM for working with PostgreSQL
-- **[Authentication System](https://docs.adonisjs.com/guides/auth/introduction)**: Robust authentication with multiple guard options
-- **[Validator](https://docs.adonisjs.com/guides/validator/introduction)**: Comprehensive validation system for form inputs
-- **[Mailer](https://docs.adonisjs.com/guides/mailer)**: Email service for sending booking confirmations
-- **[Shield](https://docs.adonisjs.com/guides/security/web-security)**: Security middleware for protection against common web attacks
-- **[Drive](https://docs.adonisjs.com/guides/drive)**: File storage abstraction for storing manifest files
+- **[SQLModel ORM](https://sqlmodel.tiangolo.com/)**: Modern ORM for working with PostgreSQL
+- **[Authentication System](https://fastapi.tiangolo.com/tutorial/security/)**: JWT-based authentication
+- **[Pydantic Validation](https://docs.pydantic.dev/)**: Comprehensive validation system for request/response models
+- **[Email Service](https://fastapi.tiangolo.com/advanced/custom-response/)**: Email sending via SendGrid
+- **Security Middleware**: Protection against common web attacks
+- **File Storage**: Local filesystem or cloud storage via standard Python libraries
 
 ### Database: PostgreSQL
 
-PostgreSQL is our chosen database for its reliability, features, and excellent support in AdonisJS:
+PostgreSQL is our chosen database for its reliability, features, and excellent support in SQLModel:
 
 - JSON capabilities for flexible data storage
 - Robust transaction support for payment processing
@@ -148,42 +148,17 @@ We will create an [Astro](https://docs.astro.build/en/concepts/why-astro/) websi
 
 ### Additional Infrastructure
 
-- **Authentication**: AdonisJS Auth with JWT tokens for admin users only (MVP)
-
-- **API Documentation**: Swagger via [AdonisJS Swagger](https://github.com/reg2005/adonis-swagger) provider
-
-- **Email Service**: [SendGrid](https://sendgrid.com/) through AdonisJS Mailer
-  **Why SendGrid over alternatives like Mailchimp:**
-
-  - SendGrid specializes in transactional emails (booking confirmations, receipts, updates) while Mailchimp is primarily for marketing campaigns
-  - Better deliverability rates for transactional messages like booking confirmations
-  - More developer-friendly API for programmatic sending from our application
-  - No monthly subscriber limits that could impact a transactional system
-  - Simple integration with AdonisJS via official providers
-  - More cost-effective for our specific use case (per-email pricing vs. subscriber-based)
-
-- **File Storage**: AdonisJS Drive with local filesystem driver
-  **VPS storage considerations:**
-
-  - Configure AdonisJS Drive to use the local filesystem for storing manifests and QR codes
-  - Implement a regular backup system for the file storage directory
-  - Set up a separate partition/directory for file storage to prevent application storage from impacting system performance
-  - Configure appropriate permissions for the storage directory
-  - Implement disk space monitoring to prevent storage issues
-  - For future scalability, the same Drive abstraction would allow migration to S3 or other cloud storage if needed
-
-- **Deployment**: Simple deployment via Git with [PM2](https://pm2.keymetrics.io/) process manager
-
-  - Well-suited for VPS hosting environment
-  - Enables zero-downtime deployments
-  - Handles automatic restarts if the application crashes
-
+- **Authentication**: JWT-based authentication for admin users (MVP)
+- **API Documentation**: Automatic OpenAPI docs via FastAPI
+- **Email Service**: [SendGrid](https://sendgrid.com/) integration via FastAPI
+- **File Storage**: Local filesystem or cloud storage via Python libraries
+- **Deployment**: Docker Compose with Uvicorn and Traefik (as per FastAPI Full-Stack Template)
 - **Monitoring**: [Sentry](https://sentry.io/) for error tracking and simple server monitoring
 
 ### Development Tools
 
-- Code quality: [ESLint](https://eslint.org/), [Prettier](https://prettier.io/)
-- Testing: [Japa](https://japa.dev/) (AdonisJS testing framework)
+- Code quality: [ruff](https://github.com/astral-sh/ruff), [black](https://black.readthedocs.io/en/stable/)
+- Testing: [pytest](https://docs.pytest.org/)
 - API testing: [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/)
 - Database management: [pgAdmin](https://www.pgadmin.org/) or similar
 

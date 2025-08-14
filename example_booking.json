@@ -1,0 +1,29 @@
+{
+  "confirmation_code": "string",
+  "mission_id": "d139db6c-e68b-4c35-8bfd-d9d178fa6947",
+  "user_name": "string",
+  "user_email": "andresconrad@gmail.com",
+  "user_phone": "string",
+  "billing_address": "string",
+  "subtotal": 0,
+  "tax_amount": 0,
+  "tip_amount": 0,
+  "discount_amount": 0,
+  "total_amount": 0,
+  "special_requests": "string",
+  "payment_intent_id": "string",
+  "status": "pending_payment",
+  "launch_updates_pref": false,
+  "items": [
+    {
+      "trip_id": "8741945a-cd48-4fcd-af68-163618c15437",
+      "boat_id": "a1a3b91a-f048-4278-8dc5-7510bb4af150",
+      "item_type": "string",
+      "quantity": 1,
+      "price_per_unit": 0,
+      "status": "active",
+      "refund_reason": "string",
+      "refund_notes": "string"
+    }
+  ]
+}

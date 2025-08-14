@@ -1,4 +1,4 @@
-# Quartermaster Stage 0: Minimal Viable Product (MVP)
+# Quartermaster Stage 0: Minimal Viable Product (MVP) - Simplified
 
 ## Overview
 
@@ -21,16 +21,16 @@ Stage 0 focuses on delivering a streamlined booking system that integrates with 
 - Integration with existing static site via URL parameters
 - Parameters: launch ID and optional discount code
 - Example URL: `https://book.star-fleet.tours/?launch=falcon9-123`
-- Single page displays all booking options (launch and pre-launch trips)
+- Single page displays all booking options (missions and their trips)
 - Mobile-first responsive design
 
 #### 2. Booking Process
 
-- **Step 0**: Trip Selection (via existing static site)
+- **Step 0**: Launch Selection (via existing static site)
 - **Step 1**: Trip Details Entry
+  - Mission selection (if multiple missions exist for the launch)
   - Number of tickets selection
   - Boat selection (if multiple options)
-  - Pre-launch trip options (if available)
   - Discount code field
   - Optional tip field with suggested amounts
   - Special requests text area
@@ -94,32 +94,6 @@ Stage 0 focuses on delivering a streamlined booking system that integrates with 
   - System automatically processes refund through Stripe API
   - Display confirmation with refund details
 
-##### Refund Implementation Details
-
-- Database tracking using item-level status field and reason dropdown
-- Refund reason options:
-  - Change in party size
-  - Could not make launch date
-  - Unsatisfied with experience
-  - Other (requires explanation)
-- Admin workflow:
-  1. View booking details
-  2. Click "Process Refund" button
-  3. UI shows all items pre-selected
-  4. Deselect specific items if needed
-  5. Select refund reason from dropdown
-  6. Enter explanation notes (required if reason is "Other")
-  7. System calculates refund amount based on selections
-  8. Admin submits form
-  9. System updates item status to "refunded" and sets refunded_at timestamp
-  10. System automatically processes refund through Stripe API
-  11. System displays confirmation with refund details
-- This approach:
-  - Provides structured data for reporting
-  - Creates a streamlined admin experience
-  - Eliminates manual Stripe dashboard work
-  - Provides foundation for Phase 1 enhancements
-
 #### 4. CSV Export
 
 - Export passenger manifest data to CSV
@@ -131,24 +105,13 @@ Stage 0 focuses on delivering a streamlined booking system that integrates with 
 - Simple email confirmation for new bookings
 - Basic email templates for booking confirmations
 
-#### 6. Mission Configuration
+#### 6. Configuration
 
-- Configure trips via YAML file
-- Basic trip/mission parameters:
-  - Name
-  - Date/time
-  - Location data
-    - Launch site (where the rocket launches)
-    - Jurisdiction (where the boat sails from)
-  - Mission details
-    - Name (e.g., "Take 1", "Take 2")
-    - Active status (taking reservations)
-    - Public visibility status
-    - Sales opening time
-    - Refund cutoff hours
-  - Trips configuration
-    - Launch viewing trips with boat assignments
-    - Pre-launch trips with times and boat assignments
+- Configure launches, missions, and trips via YAML file
+- Basic configuration parameters:
+  - Launch information (name, date/time, location)
+  - Mission details (name, active status, public visibility, sales opening time, refund cutoff hours)
+  - Trip details (type, times, boat assignments)
   - Ticket pricing
 
 ## Technical Implementation
@@ -175,7 +138,7 @@ Stage 0 focuses on delivering a streamlined booking system that integrates with 
    - Dashboard data aggregation
    - Booking management endpoints
    - CSV export functionality
-   - Simple mission/trip management
+   - Configuration from YAML
 
 4. **Email Module**
    
@@ -185,55 +148,45 @@ Stage 0 focuses on delivering a streamlined booking system that integrates with 
 
 #### Database Schema (PostgreSQL)
 
-Slugs: self-generated from name with underscores and lowercase
-
 1. **Admin Users Table**
 
    - ID (UUID), name, username, email, password (hashed), role, created_at, updated_at
 
 2. **Launches Table**
 
-   - ID (UUID), name, date_time, location_id, summary, created_at, updated_at
+   - ID (UUID), name, slug, date_time, location_id, summary, created_at, updated_at
 
 3. **Missions Table**
 
-   - ID (UUID), launch_id, name, slug, active (taking reservations), public (visible without special link), sales_open_at, refund_cutoff_hours (default 12), created_at, updated_at
+   - ID (UUID), launch_id, name, slug, active, public, sales_open_at, refund_cutoff_hours, created_at, updated_at
 
 4. **Locations Table**
 
-   - ID (UUID), name, slug, created_at, updated_at
+   - ID (UUID), name, slug, state, created_at, updated_at
 
 5. **Jurisdictions Table**
 
    - ID (UUID), name, slug, state, sales_tax_rate, location_id, created_at, updated_at
 
-6. **Boat Providers Table**
+6. **Boats Table** (simplified)
 
-   - ID (UUID), name, slug, location_description, address, jurisdiction_id, map_link, created_at, updated_at
+   - ID (UUID), name, slug, capacity, provider_name, provider_location, provider_address, jurisdiction_id, map_link, created_at, updated_at
 
-7. **Boats Table**
-
-   - ID (UUID), name, slug, capacity, provider_id, created_at, updated_at
-
-8. **Trips Table**
+7. **Trips Table**
 
    - ID (UUID), mission_id, type (launch_viewing/pre_launch), active, check_in_time, boarding_time, departure_time, created_at, updated_at
 
-9. **Trip Boats Table**
+8. **Trip Boats Table**
 
    - ID (UUID), trip_id, boat_id, max_capacity (optional override), created_at, updated_at
 
-10. **Swag Table**
+9. **Bookings Table**
 
-    - ID (UUID), name, description, price, default_quantity_available, created_at, updated_at
+   - ID (UUID), confirmation_code, mission_id, user_name, user_email, user_phone, billing_address, subtotal, discount_amount, tax_amount, tip_amount, total_amount, payment_intent_id, special_requests, status, launch_updates_preference, created_at, updated_at
 
-11. **Bookings Table**
-
-    - ID (UUID), confirmation_code, mission_id, user_name, user_email, user_phone, billing_address, subtotal, discount_amount, tax_amount, tip_amount, total_amount, payment_intent_id, special_requests, status (pending_payment, confirmed, checked_in, completed, cancelled, refunded), launch_updates_preference, created_at, updated_at
-
-12. **Booking Items Table**
+10. **Booking Items Table**
     
-    - ID (UUID), booking_id, trip_id, boat_id, item_type (adult/child/etc), quantity, price_per_unit, status (active/refunded/fulfilled), refund_notes, refunded_at, attributes (JSONB), created_at, updated_at
+   - ID (UUID), booking_id, trip_id, boat_id, item_type, quantity, price_per_unit, status, refund_reason, refund_notes, created_at, updated_at
 
 ### Frontend (React)
 
@@ -279,25 +232,6 @@ Slugs: self-generated from name with underscores and lowercase
    - Breakpoints for tablet and desktop
    - Optimized layouts for different device sizes
 
-### Integration Points
-
-1. **Static Site Integration**
-
-   - URL parameter passing
-   - Visual consistency with existing site
-   - Navigation links between systems
-
-2. **Stripe Integration**
-
-   - Secure payment processing
-   - Stripe Elements for card input
-   - Webhook handling for payment events
-
-3. **Email Service Integration**
-   - SendGrid API implementation
-   - HTML email templates
-   - Delivery tracking
-
 ## Implementation Priorities
 
 1. Core booking form with Stripe integration
@@ -305,34 +239,9 @@ Slugs: self-generated from name with underscores and lowercase
 3. Basic admin dashboard with booking table and counts
 4. CSV export functionality
 5. Simple email confirmations
-6. Mission configuration via YAML
+6. YAML configuration for launches, missions, and trips
 7. Simple check-in and refund marking functionality
 8. Tip functionality in booking form
-
-## Security Considerations
-
-1. **Data Protection**
-
-   - HTTPS enforcement
-   - Secure handling of PII
-   - No storage of payment details
-
-2. **Authentication**
-
-   - Secure admin login system
-   - Password policies
-   - Session management
-
-3. **API Security**
-
-   - Input validation
-   - Rate limiting
-   - CORS configuration
-
-4. **Stripe Security**
-   - Use of Stripe Elements
-   - PCI compliance via Stripe
-   - Secure webhook handling
 
 ## Testing Approach
 
@@ -368,65 +277,29 @@ Slugs: self-generated from name with underscores and lowercase
    - Uvicorn as the FastAPI process manager
    - Database migration
 
-3. **Post-Deployment**
-   - Smoke testing
-   - Performance monitoring
-   - Error tracking via Sentry
+## Benefits of the Simplified Approach
 
-## Regular Maintenance
+1. **Focused Development**
+   - Core functionality prioritized
+   - Essential entity relationships maintained
+   - Fewer unnecessary fields to manage
 
-1. **Backup Strategy**
-   - Quarterly database backups
-   - Manual backups before major changes
-   - Simple backup script to export database
-   - Backup verification procedure
+2. **Domain Integrity**
+   - Proper distinction between launches and missions maintained
+   - Jurisdiction-based tax handling preserved
+   - Clear separation of concerns in data model
 
-## Launch Readiness Checklist
+3. **Easier Maintainability**
+   - Streamlined database schema with proper relationships
+   - Simplified attribute set for each entity
+   - Clearer data flow through system
 
-1. **Functionality**
+4. **Faster Deployment**
+   - Field reduction allows quicker implementation
+   - YAML configuration simplifies setup
+   - Focused feature set speeds delivery
 
-   - Complete booking flow works
-   - Admin can view and manage bookings
-   - CSV exports function correctly
-   - Emails deliver reliably
-
-2. **Performance**
-
-   - Page load under 3 seconds on 4G
-   - Booking submission under 5 seconds
-   - Admin dashboard loads efficiently
-
-3. **Security**
-
-   - All endpoints properly secured
-   - Data transmission encrypted
-   - User data protected
-
-4. **Compliance**
-   - Basic accessibility standards met
-   - Privacy policy implemented
-   - Terms of service displayed
-
-## Success Metrics
-
-1. **Technical Metrics**
-
-   - Booking completion rate > 90%
-   - System uptime > 99.5%
-   - Error rate < 1%
-
-2. **Business Metrics**
-   - Successful bookings processed
-   - Admin time saved vs. manual process
-   - Customer satisfaction with booking experience
-
-## Future Considerations
-
-This MVP establishes the foundation for future phases while providing immediate value. Key considerations for smooth transition to Phase 1:
-
-1. Database design that accommodates future features
-2. API structure that allows for expansion
-3. Component architecture that supports reuse
-4. Clean separation of concerns for maintainability
-
-The MVP focuses on essential functionality while setting up the architecture to support the more advanced features planned for subsequent phases.
+5. **Clear Migration Path**
+   - Foundation established for future enhancement
+   - Core domain model already in place
+   - Critical relationships already established 
